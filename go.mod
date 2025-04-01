@@ -1,7 +1,6 @@
 module k8s.io/ingress-nginx
 
 go 1.24.1
-
 replace (
 	google.golang.org/protobuf v1.36.6 => google.golang.org/protobuf v1.35.1
 	k8s.io/api => k8s.io/api v0.25.0
@@ -42,12 +41,12 @@ require (
 	google.golang.org/grpc/examples v0.0.0-20250321200952-b0d120384670
 	gopkg.in/go-playground/pool.v3 v3.1.1
 	gopkg.in/mcuadros/go-syslog.v2 v2.3.0
-	k8s.io/api v0.25.0
+	k8s.io/api v0.32.3
 	k8s.io/apiextensions-apiserver v0.23.5
-	k8s.io/apimachinery v0.25.0
+	k8s.io/apimachinery v0.32.3
 	k8s.io/apiserver v0.25.0
-	k8s.io/cli-runtime v0.25.0
-	k8s.io/client-go v0.25.0
+	k8s.io/cli-runtime v0.32.3
+	k8s.io/client-go v0.32.3
 	k8s.io/code-generator v0.23.5
 	k8s.io/component-base v0.25.0
 	k8s.io/klog/v2 v2.130.1
@@ -58,6 +57,7 @@ require (
 
 require (
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
+	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
 	github.com/Azure/go-autorest/autorest v0.11.27 // indirect
 	github.com/Azure/go-autorest/autorest/adal v0.9.20 // indirect
@@ -71,11 +71,11 @@ require (
 	github.com/imdario/mergo v0.3.10 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/moby/sys/userns v0.1.0 // indirect
+	github.com/moby/term v0.5.0 // indirect
 	github.com/onsi/gomega v1.36.2 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	go.opentelemetry.io/otel v1.35.0 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	k8s.io/gengo v0.0.0-20210813121822-485abfe95c7c // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 )
