@@ -172,6 +172,7 @@ func (i *Informer) Run(stopCh chan struct{}) {
 	// wait for all involved caches to be synced before processing items
 	// from the queue
 	if !cache.WaitForCacheSync(stopCh,
+                i.EndpointSlice.HasSynced,
 		i.Service.HasSynced,
 		i.Secret.HasSynced,
 		i.ConfigMap.HasSynced,
@@ -337,7 +338,7 @@ func New(
 		store.listers.IngressClass.Store = cache.NewStore(cache.MetaNamespaceKeyFunc)
 	}
 
-	store.informers.EndpointSlice = infFactory.Discovery().V1().EndpointSlices().Informer()
+	store.informers.EndpointSlice = infFactory.Discovery().V1beta1().EndpointSlices().Informer()
 	store.listers.EndpointSlice.Store = store.informers.EndpointSlice.GetStore()
 
 	store.informers.Secret = infFactorySecrets.Core().V1().Secrets().Informer()
@@ -843,27 +844,16 @@ func New(
 			}
 		},
 	}
-
-	if _, err := store.informers.Ingress.AddEventHandler(ingEventHandler); err != nil {
-		klog.Errorf("Error adding ingress event handler: %v", err)
-	}
+        
+        store.informers.Ingress.AddEventHandler(ingEventHandler)
 	if !icConfig.IgnoreIngressClass {
-		if _, err := store.informers.IngressClass.AddEventHandler(ingressClassEventHandler); err != nil {
-			klog.Errorf("Error adding ingress class event handler: %v", err)
-		}
+		store.informers.IngressClass.AddEventHandler(ingressClassEventHandler)
 	}
-	if _, err := store.informers.EndpointSlice.AddEventHandler(epsEventHandler); err != nil {
-		klog.Errorf("Error adding endpoint slice event handler: %v", err)
-	}
-	if _, err := store.informers.Secret.AddEventHandler(secrEventHandler); err != nil {
-		klog.Errorf("Error adding secret event handler: %v", err)
-	}
-	if _, err := store.informers.ConfigMap.AddEventHandler(cmEventHandler); err != nil {
-		klog.Errorf("Error adding configmap event handler: %v", err)
-	}
-	if _, err := store.informers.Service.AddEventHandler(serviceHandler); err != nil {
-		klog.Errorf("Error adding service event handler: %v", err)
-	}
+	store.informers.EndpointSlice.AddEventHandler(epsEventHandler)
+	store.informers.Secret.AddEventHandler(secrEventHandler)
+	store.informers.ConfigMap.AddEventHandler(cmEventHandler)
+	store.informers.Service.AddEventHandler(serviceHandler)
+
 
 	// do not wait for informers to read the configmap configuration
 	ns, name, err := k8s.ParseNameNS(configmap)

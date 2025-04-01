@@ -145,7 +145,7 @@ type Configuration struct {
 
 func getIngressPodZone(svc *apiv1.Service) string {
 	svcKey := k8s.MetaNamespaceKey(svc)
-	if svcZoneAnnotation, ok := svc.ObjectMeta.GetAnnotations()[apiv1.AnnotationTopologyMode]; ok {
+	if svcZoneAnnotation, ok := svc.ObjectMeta.GetAnnotations()["service.kubernetes.io/topology-aware-hints"]; ok {
 		if strings.EqualFold(svcZoneAnnotation, "auto") {
 			if foundZone, ok := k8s.IngressNodeDetails.GetLabels()[apiv1.LabelTopologyZone]; ok {
 				klog.V(3).Infof("Svc has topology aware annotation enabled, try to use zone %q where controller pod is running for Service %q ", foundZone, svcKey)
@@ -611,11 +611,11 @@ func (n *NGINXController) getDefaultUpstream() *ingress.Backend {
 }
 
 // getConfiguration returns the configuration matching the standard kubernetes ingress
-func (n *NGINXController) getConfiguration(ingresses []*ingress.Ingress) (sets.Set[string], []*ingress.Server, *ingress.Configuration) {
+func (n *NGINXController) getConfiguration(ingresses []*ingress.Ingress) (sets.String, []*ingress.Server, *ingress.Configuration) {
 	upstreams, servers := n.getBackendServers(ingresses)
 	var passUpstreams []*ingress.SSLPassthroughBackend
 
-	hosts := sets.New[string]()
+	hosts := sets.NewString()
 
 	for _, server := range servers {
 		// If a location is defined by a prefix string that ends with the slash character, and requests are processed by one of

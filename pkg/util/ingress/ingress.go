@@ -177,7 +177,7 @@ type Redirect struct {
 
 // BuildRedirects build the redirects of servers based on configurations and certificates
 func BuildRedirects(servers []*ingress.Server) []*Redirect {
-	names := sets.Set[string]{}
+	names := sets.String{}
 	redirectServers := make([]*Redirect, 0)
 
 	for _, srv := range servers {

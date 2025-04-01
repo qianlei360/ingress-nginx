@@ -803,7 +803,7 @@ rewrite "(?i)%s" %s break;
 
 func filterRateLimits(input interface{}) []ratelimit.Config {
 	ratelimits := []ratelimit.Config{}
-	found := sets.Set[string]{}
+	found := sets.String{}
 
 	servers, ok := input.([]*ingress.Server)
 	if !ok {
@@ -826,7 +826,7 @@ func filterRateLimits(input interface{}) []ratelimit.Config {
 // for connection limit by IP address, one for limiting requests per minute, and
 // one for limiting requests per second.
 func buildRateLimitZones(input interface{}) []string {
-	zones := sets.Set[string]{}
+	zones := sets.String{}
 
 	servers, ok := input.([]*ingress.Server)
 	if !ok {
@@ -1631,7 +1631,7 @@ func buildModSecurityForLocation(cfg config.Configuration, location *ingress.Loc
 func buildMirrorLocations(locs []*ingress.Location) string {
 	var buffer bytes.Buffer
 
-	mapped := sets.Set[string]{}
+	mapped := sets.String{}
 
 	for _, loc := range locs {
 		if loc.Mirror.Source == "" || loc.Mirror.Target == "" || loc.Mirror.Host == "" {

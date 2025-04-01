@@ -29,7 +29,7 @@ import (
 
 	pool "gopkg.in/go-playground/pool.v3"
 	apiv1 "k8s.io/api/core/v1"
-	v1 "k8s.io/api/networking/v1"
+	//v1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -133,7 +133,7 @@ func (s *statusSync) Shutdown() {
 	}
 
 	klog.InfoS("removing value from ingress status", "address", addrs)
-	s.updateStatus([]v1.IngressLoadBalancerIngress{})
+	s.updateStatus([]apiv1.LoadBalancerIngress{})
 }
 
 func (s *statusSync) sync(_ interface{}) error {
@@ -165,21 +165,21 @@ func NewStatusSyncer(config Config) Syncer {
 	return st
 }
 
-func nameOrIPToLoadBalancerIngress(nameOrIP string) v1.IngressLoadBalancerIngress {
+func nameOrIPToLoadBalancerIngress(nameOrIP string) apiv1.LoadBalancerIngress {
 	if net.ParseIP(nameOrIP) != nil {
-		return v1.IngressLoadBalancerIngress{IP: nameOrIP}
+		return apiv1.LoadBalancerIngress{IP: nameOrIP}
 	}
 
-	return v1.IngressLoadBalancerIngress{Hostname: nameOrIP}
+	return apiv1.LoadBalancerIngress{Hostname: nameOrIP}
 }
 
 // runningAddresses returns a list of IP addresses and/or FQDN where the
 // ingress controller is currently running
-func (s *statusSync) runningAddresses() ([]v1.IngressLoadBalancerIngress, error) {
+func (s *statusSync) runningAddresses() ([]apiv1.LoadBalancerIngress, error) {
 	if s.PublishStatusAddress != "" {
 		re := regexp.MustCompile(`,\s*`)
 		multipleAddrs := re.Split(s.PublishStatusAddress, -1)
-		addrs := make([]v1.IngressLoadBalancerIngress, len(multipleAddrs))
+		addrs := make([]apiv1.LoadBalancerIngress, len(multipleAddrs))
 		for i, addr := range multipleAddrs {
 			addrs[i] = nameOrIPToLoadBalancerIngress(addr)
 		}
@@ -198,7 +198,7 @@ func (s *statusSync) runningAddresses() ([]v1.IngressLoadBalancerIngress, error)
 		return nil, err
 	}
 
-	addrs := make([]v1.IngressLoadBalancerIngress, 0)
+	addrs := make([]apiv1.LoadBalancerIngress, 0)
 	for i := range pods.Items {
 		pod := pods.Items[i]
 		// only Running pods are valid
@@ -254,7 +254,7 @@ func (s *statusSync) isRunningMultiplePods() bool {
 
 // standardizeLoadBalancerIngresses sorts the list of loadbalancer by
 // IP
-func standardizeLoadBalancerIngresses(lbi []v1.IngressLoadBalancerIngress) []v1.IngressLoadBalancerIngress {
+func standardizeLoadBalancerIngresses(lbi []apiv1.LoadBalancerIngress) []apiv1.LoadBalancerIngress {
 	sort.SliceStable(lbi, func(a, b int) bool {
 		return lbi[a].IP < lbi[b].IP
 	})
@@ -263,7 +263,7 @@ func standardizeLoadBalancerIngresses(lbi []v1.IngressLoadBalancerIngress) []v1.
 }
 
 // updateStatus changes the status information of Ingress rules
-func (s *statusSync) updateStatus(newIngressPoint []v1.IngressLoadBalancerIngress) {
+func (s *statusSync) updateStatus(newIngressPoint []apiv1.LoadBalancerIngress) {
 	ings := s.IngressLister.ListIngresses()
 
 	p := pool.NewLimited(10)
@@ -287,7 +287,7 @@ func (s *statusSync) updateStatus(newIngressPoint []v1.IngressLoadBalancerIngres
 	batch.WaitAll()
 }
 
-func runUpdate(ing *ingress.Ingress, status []v1.IngressLoadBalancerIngress,
+func runUpdate(ing *ingress.Ingress, status []apiv1.LoadBalancerIngress,
 	client clientset.Interface,
 ) pool.WorkFunc {
 	return func(wu pool.WorkUnit) (interface{}, error) {
@@ -312,7 +312,7 @@ func runUpdate(ing *ingress.Ingress, status []v1.IngressLoadBalancerIngress,
 	}
 }
 
-func lessLoadBalancerIngress(addrs []v1.IngressLoadBalancerIngress) func(int, int) bool {
+func lessLoadBalancerIngress(addrs []apiv1.LoadBalancerIngress) func(int, int) bool {
 	return func(a, b int) bool {
 		switch strings.Compare(addrs[a].Hostname, addrs[b].Hostname) {
 		case -1:
@@ -324,7 +324,7 @@ func lessLoadBalancerIngress(addrs []v1.IngressLoadBalancerIngress) func(int, in
 	}
 }
 
-func ingressSliceEqual(lhs, rhs []v1.IngressLoadBalancerIngress) bool {
+func ingressSliceEqual(lhs, rhs []apiv1.LoadBalancerIngress) bool {
 	if len(lhs) != len(rhs) {
 		return false
 	}
@@ -341,7 +341,7 @@ func ingressSliceEqual(lhs, rhs []v1.IngressLoadBalancerIngress) bool {
 	return true
 }
 
-func statusAddressFromService(service string, kubeClient clientset.Interface) ([]v1.IngressLoadBalancerIngress, error) {
+func statusAddressFromService(service string, kubeClient clientset.Interface) ([]apiv1.LoadBalancerIngress, error) {
 	ns, name, err := k8s.ParseNameNS(service)
 	if err != nil {
 		return nil, err
@@ -353,28 +353,28 @@ func statusAddressFromService(service string, kubeClient clientset.Interface) ([
 
 	switch svc.Spec.Type {
 	case apiv1.ServiceTypeExternalName:
-		return []v1.IngressLoadBalancerIngress{{
+		return []apiv1.LoadBalancerIngress{{
 			Hostname: svc.Spec.ExternalName,
 		}}, nil
 	case apiv1.ServiceTypeClusterIP:
-		return []v1.IngressLoadBalancerIngress{{
+		return []apiv1.LoadBalancerIngress{{
 			IP: svc.Spec.ClusterIP,
 		}}, nil
 	case apiv1.ServiceTypeNodePort:
 		if svc.Spec.ExternalIPs == nil {
-			return []v1.IngressLoadBalancerIngress{{
+			return []apiv1.LoadBalancerIngress{{
 				IP: svc.Spec.ClusterIP,
 			}}, nil
 		}
-		addrs := make([]v1.IngressLoadBalancerIngress, 0, len(svc.Spec.ExternalIPs))
+		addrs := make([]apiv1.LoadBalancerIngress, 0, len(svc.Spec.ExternalIPs))
 		for _, ip := range svc.Spec.ExternalIPs {
-			addrs = append(addrs, v1.IngressLoadBalancerIngress{IP: ip})
+			addrs = append(addrs, apiv1.LoadBalancerIngress{IP: ip})
 		}
 		return addrs, nil
 	case apiv1.ServiceTypeLoadBalancer:
-		addrs := make([]v1.IngressLoadBalancerIngress, 0, len(svc.Status.LoadBalancer.Ingress))
+		addrs := make([]apiv1.LoadBalancerIngress, 0, len(svc.Status.LoadBalancer.Ingress))
 		for i, ingress := range svc.Status.LoadBalancer.Ingress {
-			addrs = append(addrs, v1.IngressLoadBalancerIngress{})
+			addrs = append(addrs, apiv1.LoadBalancerIngress{})
 			if ingress.Hostname != "" {
 				addrs[i].Hostname = ingress.Hostname
 			}
@@ -384,7 +384,7 @@ func statusAddressFromService(service string, kubeClient clientset.Interface) ([
 		}
 		for _, ip := range svc.Spec.ExternalIPs {
 			if !stringInIngresses(ip, addrs) {
-				addrs = append(addrs, v1.IngressLoadBalancerIngress{IP: ip})
+				addrs = append(addrs, apiv1.LoadBalancerIngress{IP: ip})
 			}
 		}
 		return addrs, nil
@@ -394,7 +394,7 @@ func statusAddressFromService(service string, kubeClient clientset.Interface) ([
 }
 
 // stringInIngresses returns true if s is in list
-func stringInIngresses(s string, list []v1.IngressLoadBalancerIngress) bool {
+func stringInIngresses(s string, list []apiv1.LoadBalancerIngress) bool {
 	for _, v := range list {
 		if v.IP == s || v.Hostname == s {
 			return true

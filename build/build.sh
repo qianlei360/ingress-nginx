@@ -34,6 +34,7 @@ fi
 
 export CGO_ENABLED=0
 export GOARCH="${ARCH}"
+export GOPROXY=https://goproxy.cn
 
 TARGETS_DIR="rootfs/bin/${ARCH}"
 echo "Building targets for ${ARCH}, generated targets in ${TARGETS_DIR} directory."

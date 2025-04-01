@@ -69,7 +69,7 @@ func (dc DummyCollector) SetSSLInfo([]*ingress.Server) {}
 func (dc DummyCollector) SetSSLExpireTime([]*ingress.Server) {}
 
 // SetHosts dummy implementation
-func (dc DummyCollector) SetHosts(_ sets.Set[string]) {}
+func (dc DummyCollector) SetHosts(_ sets.String) {}
 
 // OnStartedLeading indicates the pod is not the current leader
 func (dc DummyCollector) OnStartedLeading(_ string) {}

@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+GOPROXY=https://goproxy.cn
 DEBUG=${DEBUG:-"false"}
 if [ "$DEBUG" == "true" ]; then
   set -x

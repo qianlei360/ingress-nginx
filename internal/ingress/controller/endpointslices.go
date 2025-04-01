@@ -50,7 +50,7 @@ func getEndpointsFromSlices(s *corev1.Service, port *corev1.ServicePort, proto c
 	processedUpstreamServers := make(map[string]struct{})
 
 	svcKey := k8s.MetaNamespaceKey(s)
-	var useTopologyHints bool
+	//var useTopologyHints bool
 
 	// ExternalName services
 	if s.Spec.Type == corev1.ServiceTypeExternalName {
@@ -93,6 +93,7 @@ func getEndpointsFromSlices(s *corev1.Service, port *corev1.ServicePort, proto c
 		} else {
 			for _, epPort := range eps.Ports {
 				if !reflect.DeepEqual(*epPort.Protocol, proto) {
+                                        klog.V(3).Infof("Skipping port %v due to protocol mismatch", epPort.Name)
 					continue
 				}
 				var targetPort int32
@@ -113,56 +114,25 @@ func getEndpointsFromSlices(s *corev1.Service, port *corev1.ServicePort, proto c
 				ports = append(ports, targetPort)
 			}
 		}
-		useTopologyHints = false
-		if zoneForHints != emptyZone {
-			useTopologyHints = true
-			// check if all endpointslices have zone hints
-			for _, ep := range eps.Endpoints {
-				if ep.Hints == nil || len(ep.Hints.ForZones) == 0 {
-					useTopologyHints = false
-					break
+                  // 修复 epPort 作用域问题
+                 for _, targetPort := range ports {
+                        for _, ep := range eps.Endpoints {
+                                if (ep.Conditions.Ready != nil) && *ep.Conditions.Ready {
+                                        for _, epAddress := range ep.Addresses {
+                                                hostPort := net.JoinHostPort(epAddress, strconv.Itoa(int(targetPort)))
+                                                if _, exists := processedUpstreamServers[hostPort]; !exists {
+                                                        upsServers = append(upsServers, ingress.Endpoint{
+                                                                Address: epAddress,
+                                                                Port:    fmt.Sprintf("%v", targetPort),
+                                                                Target:  ep.TargetRef,
+                                                        })
+                                                        processedUpstreamServers[hostPort] = struct{}{}
+                                                }
 				}
-			}
-			if useTopologyHints {
-				klog.V(3).Infof("All endpoint slices has zone hint, using zone %q for Service %q", zoneForHints, svcKey)
-			}
-		}
-
-		for _, ep := range eps.Endpoints {
-			if (ep.Conditions.Ready != nil) && !(*ep.Conditions.Ready) {
-				continue
-			}
-			epHasZone := false
-			if useTopologyHints {
-				for _, epzone := range ep.Hints.ForZones {
-					if epzone.Name == zoneForHints {
-						epHasZone = true
-						break
-					}
-				}
-			}
-
-			if useTopologyHints && !epHasZone {
-				continue
-			}
-
-			for _, epPort := range ports {
-				for _, epAddress := range ep.Addresses {
-					hostPort := net.JoinHostPort(epAddress, strconv.Itoa(int(epPort)))
-					if _, exists := processedUpstreamServers[hostPort]; exists {
-						continue
-					}
-					ups := ingress.Endpoint{
-						Address: epAddress,
-						Port:    fmt.Sprintf("%v", epPort),
-						Target:  ep.TargetRef,
-					}
-					upsServers = append(upsServers, ups)
-					processedUpstreamServers[hostPort] = struct{}{}
 				}
 			}
 		}
-	}
+   }
 
 	klog.V(3).Infof("Endpoints found for Service %q: %v", svcKey, upsServers)
 	return upsServers

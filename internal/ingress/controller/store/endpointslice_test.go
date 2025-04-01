@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"testing"
 
-	discoveryv1beta1 "k8s.io/api/discovery/v1"
+	discoveryv1beta1 "k8s.io/api/discovery/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/cache"
 )

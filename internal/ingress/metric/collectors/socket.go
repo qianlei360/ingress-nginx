@@ -80,7 +80,7 @@ type SocketCollector struct {
 
 	metricMapping metricMapping
 
-	hosts sets.Set[string]
+	hosts sets.String
 
 	metricsPerHost      bool
 	reportStatusClasses bool
@@ -555,7 +555,7 @@ func (sc *SocketCollector) Collect(ch chan<- prometheus.Metric) {
 
 // SetHosts sets the hostnames that are being served by the ingress controller
 // This set of hostnames is used to filter the metrics to be exposed
-func (sc *SocketCollector) SetHosts(hosts sets.Set[string]) {
+func (sc *SocketCollector) SetHosts(hosts sets.String) {
 	sc.hosts = hosts
 }
 
