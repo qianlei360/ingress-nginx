@@ -53,7 +53,7 @@ require (
 	k8s.io/klog/v2 v2.130.1
 	pault.ag/go/sniff v0.0.0-20200207005214-cf7e4d167732
 	sigs.k8s.io/controller-runtime v0.11.2
-	sigs.k8s.io/mdtoc v1.1.0
+	sigs.k8s.io/mdtoc v1.4.0
 )
 
 require (
@@ -64,6 +64,7 @@ require (
 	github.com/Azure/go-autorest/autorest/date v0.3.0 // indirect
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
+	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be // indirect
 	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
 	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
@@ -78,6 +79,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	k8s.io/gengo v0.0.0-20210813121822-485abfe95c7c // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
+	sigs.k8s.io/release-utils v0.8.3 // indirect
 )
 
 require (
