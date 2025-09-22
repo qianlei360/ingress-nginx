@@ -15,7 +15,7 @@ replace (
 )
 
 require (
-	dario.cat/mergo v1.0.1
+	dario.cat/mergo v1.0.2
 	github.com/armon/go-proxyproto v0.1.0
 	github.com/eapache/channels v1.1.0
 	github.com/fsnotify/fsnotify v1.8.0
@@ -25,15 +25,15 @@ require (
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/moul/pb v0.0.0-20220425114252-bca18df4138c
-	github.com/ncabatoff/process-exporter v0.8.5
+	github.com/ncabatoff/process-exporter v0.8.7
 	github.com/onsi/ginkgo/v2 v2.23.3
 	github.com/opencontainers/runc v1.2.6
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2
 	github.com/prometheus/client_golang v1.21.1
-	github.com/prometheus/client_model v0.6.1
+	github.com/prometheus/client_model v0.6.2
 	github.com/prometheus/common v0.63.0
 	github.com/spf13/cobra v1.9.1
-	github.com/spf13/pflag v1.0.6
+	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.10.0
 	github.com/yudai/gojsondiff v1.0.0
 	github.com/zakjan/cert-chain-resolver v0.0.0-20221221105603-fcedb00c5b30
